@@ -65,6 +65,23 @@ func registerTicketTools(s *server.MCPServer) {
 - company_id: Filter by company ID
 - assigned_user_id: Filter by assigned user ID`),
 		),
+		mcp.WithString("orderBy",
+			mcp.Description("Order by field"),
+			mcp.Enum("createdAt", "updatedAt"),
+		),
+		mcp.WithString("orderMode",
+			mcp.Description("Order mode"),
+			mcp.Enum("asc", "desc"),
+		),
+		mcp.WithNumber("page",
+			mcp.Description("Page number"),
+			mcp.Min(1),
+		),
+		mcp.WithNumber("pageSize",
+			mcp.Description("Number of tickets per page"),
+			mcp.Min(1),
+			mcp.Max(100),
+		),
 	), func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		params := url.Values{}
 		if filterParams, ok := request.Params.Arguments["filter"].(map[string]interface{}); ok {
