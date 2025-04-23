@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 # Install git and build dependencies
 RUN apk add --no-cache git
@@ -33,10 +33,6 @@ COPY --from=builder /app/mcp .
 
 # Expose port (if needed for future use)
 EXPOSE 8080
-
-# Set environment variables
-ENV DESK_API_URL=""
-ENV DESK_API_TOKEN=""
 
 # Run the application
 CMD ["./mcp"] 

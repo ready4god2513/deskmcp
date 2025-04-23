@@ -26,11 +26,18 @@ go install github.com/ready4god2513/deskmcp/cmd/mcp
 docker build -t deskmcp .
 ```
 
-2. Run the container:
+2. Run the container (recommended to use a secrets manager or environment file for sensitive data):
 ```bash
+# Using environment variables (not recommended for production)
 docker run -d \
   -e DESK_API_URL=https://yourcompany.teamwork.com \
   -e DESK_API_TOKEN=your_api_token \
+  --name deskmcp \
+  deskmcp
+
+# Using environment file (more secure)
+docker run -d \
+  --env-file .env \
   --name deskmcp \
   deskmcp
 ```
@@ -208,6 +215,99 @@ All list operations support filtering through the `filter` parameter. Here are s
 - Smart ticket routing
 - Predictive response suggestions
 - Automated follow-up scheduling
+
+## Claude Desktop Configuration
+
+To use DeskMCP with Claude Desktop:
+
+1. Make sure DeskMCP is running locally (either through direct installation or Docker)
+2. Open Claude Desktop
+3. Go to Settings (gear icon)
+4. Navigate to the "Tools" section
+5. Add a new MCP server with the following configuration:
+
+```json
+{
+  "mcpServers": {
+    "Teamwork Desk": {
+      "command": "mcp",
+      "args": [],
+      "env": {
+        "DESK_API_URL": "https://yourcompany.teamwork.com",
+        "DESK_API_TOKEN": "your_api_token"
+      },
+      "autostart": true,
+      "autorestart": true
+    }
+  }
+}
+```
+
+Note: The `mcp` command must be in your system's PATH. If you installed it using `go install`, it should be available. If you're using Docker, you'll need to use the appropriate Docker command instead.
+
+6. Save the configuration
+7. Restart Claude Desktop
+
+Now you can use natural language to interact with your Teamwork Desk data through Claude. For example:
+- "Show me all open tickets"
+- "Create a new ticket for customer John Smith"
+- "Find all tickets from company Acme Inc"
+
+## Troubleshooting
+
+### Server Disconnected Error
+
+If you see "MCP Teamwork Desk: Server disconnected" or "spawn mcp ENOENT" error:
+
+1. Find the location of your mcp executable:
+   ```bash
+   which mcp
+   ```
+
+2. Verify the full path to mcp in your configuration:
+   ```json
+   {
+     "mcpServers": {
+       "Teamwork Desk": {
+         "command": "/Users/YOUR_USERNAME/go/bin/mcp",  # Use the full path from `which mcp`
+         "args": [],
+         "env": {
+           "DESK_API_URL": "https://yourcompany.teamwork.com",
+           "DESK_API_TOKEN": "your_api_token"
+         },
+         "autostart": true,
+         "autorestart": true
+       }
+     }
+   }
+   ```
+
+3. If `which mcp` returns nothing, the executable isn't in your PATH. Add your Go bin directory to PATH:
+   ```bash
+   # Add to your ~/.zshrc or ~/.bash_profile
+   export PATH=$PATH:$(go env GOPATH)/bin
+   ```
+   Then restart your terminal and Claude Desktop.
+
+4. Alternatively, reinstall the tool:
+   ```bash
+   go install github.com/ready4god2513/deskmcp/cmd/mcp@latest
+   ```
+
+5. For Docker users:
+   ```bash
+   # Use the full Docker command in the configuration
+   {
+     "mcpServers": {
+       "Teamwork Desk": {
+         "command": "docker",
+         "args": ["run", "--rm", "-e", "DESK_API_URL=https://yourcompany.teamwork.com", "-e", "DESK_API_TOKEN=your_api_token", "deskmcp"],
+         "autostart": true,
+         "autorestart": true
+       }
+     }
+   }
+   ```
 
 ## License
 

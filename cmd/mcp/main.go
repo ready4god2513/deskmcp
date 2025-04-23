@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -55,7 +56,14 @@ func registerTicketTools(s *server.MCPServer) {
 	s.AddTool(mcp.NewTool("list_tickets",
 		mcp.WithDescription("List all tickets"),
 		mcp.WithObject("filter",
-			mcp.Description("Optional filter for tickets (e.g., {\"status\": \"open\"})"),
+			mcp.Description(`Optional filter for tickets. Available fields:
+- status: Filter by ticket status (e.g. "open", "closed", "pending")
+- priority: Filter by priority level
+- created_at: Filter by creation date
+- updated_at: Filter by last update date
+- customer_id: Filter by customer ID
+- company_id: Filter by company ID
+- assigned_user_id: Filter by assigned user ID`),
 		),
 	), func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		params := url.Values{}
@@ -68,10 +76,43 @@ func registerTicketTools(s *server.MCPServer) {
 		if err != nil {
 			return mcp.NewToolResultError(fmt.Sprintf("Failed to list tickets: %v", err)), nil
 		}
-		data, err := json.Marshal(resp.Tickets)
+
+		// Format the tickets into a more readable structure
+		type formattedTicket struct {
+			ID          int    `json:"id"`
+			Subject     string `json:"subject"`
+			Status      string `json:"status"`
+			CreatedAt   string `json:"created_at"`
+			UpdatedAt   string `json:"updated_at"`
+			PreviewText string `json:"preview_text"`
+		}
+
+		tickets := make([]formattedTicket, 0, len(resp.Tickets))
+		for _, t := range resp.Tickets {
+			var status string
+
+			for _, s := range resp.Included.Ticketstatuses {
+				if s.ID == t.Status.ID {
+					status = s.Name
+					break
+				}
+			}
+			tickets = append(tickets, formattedTicket{
+				ID:          t.ID,
+				Subject:     t.Subject,
+				Status:      status,
+				CreatedAt:   t.CreatedAt.Format(time.RFC3339),
+				UpdatedAt:   t.UpdatedAt.Format(time.RFC3339),
+				PreviewText: t.PreviewText,
+			})
+		}
+
+		data, err := json.Marshal(tickets)
 		if err != nil {
 			return mcp.NewToolResultError(fmt.Sprintf("Failed to marshal tickets: %v", err)), nil
 		}
+
+		// Return the data in the format expected by Claude
 		return mcp.NewToolResultText(string(data)), nil
 	})
 
@@ -131,7 +172,13 @@ func registerCustomerTools(s *server.MCPServer) {
 	s.AddTool(mcp.NewTool("list_customers",
 		mcp.WithDescription("List all customers"),
 		mcp.WithObject("filter",
-			mcp.Description("Optional filter for customers (e.g., {\"email\": \"user@example.com\"})"),
+			mcp.Description(`Optional filter for customers. Available fields:
+- email: Filter by email address
+- first_name: Filter by first name
+- last_name: Filter by last name
+- company_id: Filter by company ID
+- created_at: Filter by creation date
+- updated_at: Filter by last update date`),
 		),
 	), func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		params := url.Values{}
@@ -212,7 +259,10 @@ func registerCompanyTools(s *server.MCPServer) {
 	s.AddTool(mcp.NewTool("list_companies",
 		mcp.WithDescription("List all companies"),
 		mcp.WithObject("filter",
-			mcp.Description("Optional filter for companies (e.g., {\"name\": \"Acme Inc\"})"),
+			mcp.Description(`Optional filter for companies. Available fields:
+- name: Filter by company name
+- created_at: Filter by creation date
+- updated_at: Filter by last update date`),
 		),
 	), func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		params := url.Values{}
@@ -283,7 +333,13 @@ func registerUserTools(s *server.MCPServer) {
 	s.AddTool(mcp.NewTool("list_users",
 		mcp.WithDescription("List all users"),
 		mcp.WithObject("filter",
-			mcp.Description("Optional filter for users (e.g., {\"email\": \"user@example.com\"})"),
+			mcp.Description(`Optional filter for users. Available fields:
+- email: Filter by email address
+- first_name: Filter by first name
+- last_name: Filter by last name
+- role: Filter by user role
+- created_at: Filter by creation date
+- updated_at: Filter by last update date`),
 		),
 	), func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		params := url.Values{}
