@@ -11,6 +11,7 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/ready4god2513/deskmcp/pkg/desk"
+	"github.com/ready4god2513/deskmcp/pkg/utils"
 	"github.com/ready4god2513/desksdkgo/models"
 )
 
@@ -88,29 +89,7 @@ func (h *TicketHandler) listTickets(ctx context.Context, request mcp.CallToolReq
 		}
 	}
 
-	orderBy := request.Params.Arguments["orderBy"].(string)
-	orderMode := request.Params.Arguments["orderMode"].(string)
-	page := request.Params.Arguments["page"].(float64)
-	pageSize := request.Params.Arguments["pageSize"].(float64)
-
-	if orderBy == "" {
-		orderBy = "createdAt"
-	}
-	if orderMode == "" {
-		orderMode = "desc"
-	}
-
-	if page == 0 {
-		page = 1
-	}
-	if pageSize == 0 {
-		pageSize = 10
-	}
-
-	params.Add("orderBy", orderBy)
-	params.Add("orderMode", orderMode)
-	params.Add("page", strconv.Itoa(int(page)))
-	params.Add("pageSize", strconv.Itoa(int(pageSize)))
+	utils.AddPaginationToParams(params, request)
 
 	resp, err := h.deskClient.Client.Tickets.List(ctx, params)
 	if err != nil {
