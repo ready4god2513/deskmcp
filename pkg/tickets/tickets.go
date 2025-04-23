@@ -58,6 +58,21 @@ func (h *TicketHandler) RegisterTools(s *server.MCPServer) {
 		),
 	), h.listTickets)
 
+	// Count tickets
+	s.AddTool(mcp.NewTool("count_tickets",
+		mcp.WithDescription("Count all filtered tickets"),
+		mcp.WithObject("filter",
+			mcp.Description(`Optional filter for tickets. Available fields:
+- status: Filter by ticket status (e.g. "open", "closed", "pending")
+- priority: Filter by priority level
+- created_at: Filter by creation date
+- updated_at: Filter by last update date
+- customer_id: Filter by customer ID
+- company_id: Filter by company ID
+- assigned_user_id: Filter by assigned user ID`),
+		),
+	), h.countTickets)
+
 	// Get ticket
 	s.AddTool(mcp.NewTool("get_ticket",
 		mcp.WithDescription("Get a specific ticket by ID"),
@@ -132,6 +147,19 @@ func (h *TicketHandler) listTickets(ctx context.Context, request mcp.CallToolReq
 	}
 
 	return mcp.NewToolResultText(string(data)), nil
+}
+
+// Count tickets
+func (h *TicketHandler) countTickets(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	params := url.Values{}
+	utils.AddPaginationToParams(params, request)
+
+	tickets, err := h.deskClient.Client.Tickets.List(ctx, params)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Failed to count tickets: %v", err)), nil
+	}
+
+	return mcp.NewToolResultText(strconv.Itoa(tickets.Pagination.Records)), nil
 }
 
 func (h *TicketHandler) getTicket(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
