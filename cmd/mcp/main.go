@@ -8,7 +8,10 @@ import (
 	"github.com/ready4god2513/deskmcp/pkg/companies"
 	"github.com/ready4god2513/deskmcp/pkg/customers"
 	"github.com/ready4god2513/deskmcp/pkg/desk"
+	"github.com/ready4god2513/deskmcp/pkg/tags"
 	"github.com/ready4god2513/deskmcp/pkg/tickets"
+	"github.com/ready4god2513/deskmcp/pkg/ticketstatuses"
+	"github.com/ready4god2513/deskmcp/pkg/tickettypes"
 	"github.com/ready4god2513/deskmcp/pkg/users"
 )
 
@@ -45,6 +48,15 @@ func main() {
 
 	userHandler := users.NewUserHandler(deskClient)
 	userHandler.RegisterTools(s)
+
+	ticketStatusHandler := ticketstatuses.NewTicketStatusHandler(deskClient)
+	ticketStatusHandler.RegisterTools(s)
+
+	tagsHandler := tags.NewTagHandler(deskClient)
+	tagsHandler.RegisterTools(s)
+
+	ticketTypeHandler := tickettypes.NewTicketTypeHandler(deskClient)
+	ticketTypeHandler.RegisterTools(s)
 
 	// Start the server
 	if err := server.ServeStdio(s); err != nil {
