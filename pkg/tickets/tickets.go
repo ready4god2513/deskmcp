@@ -30,14 +30,40 @@ func (h *TicketHandler) RegisterTools(s *server.MCPServer) {
 	s.AddTool(mcp.NewTool("list_tickets",
 		mcp.WithDescription("List all tickets"),
 		mcp.WithObject("filter",
-			mcp.Description(`Optional filter for tickets. Available fields:
+			mcp.Description(`Optional filter for tickets. Available fields and syntax:
+
+Basic fields:
 - status: Filter by ticket status (e.g. "open", "closed", "pending")
 - priority: Filter by priority level
 - created_at: Filter by creation date
 - updated_at: Filter by last update date
 - customer_id: Filter by customer ID
 - company_id: Filter by company ID
-- assigned_user_id: Filter by assigned user ID`),
+- assigned_user_id: Filter by assigned user ID
+
+Filter syntax examples:
+1. Simple equality:
+   {"status": "open"}
+   {"priority": "high", "status": "closed"}
+
+2. Comparison operators:
+   {"age": {"$eq": 20}}  // equals
+   {"age": {"$ne": 20}}  // not equals
+   {"age": {"$lt": 20}}  // less than
+   {"age": {"$gt": 20}}  // greater than
+   {"age": {"$lte": 20}} // less than or equal
+   {"age": {"$gte": 20}} // greater than or equal
+
+3. Set operations:
+   {"age": {"$in": [20, 1]}}    // in list
+   {"age": {"$nin": [20, 1]}}   // not in list
+
+4. Logical operators:
+   {"$or": [{"age": {"$gt": 20}}, {"name": "mike"}]}
+   {"$or": [{"age": {"$gt": 20}}, {"name": "mike"}, {"$and": [{"age": {"$gt": 12}}, {"age": {"$lte": 18}}]}]}
+   {"$or": []}
+
+Operators can be combined to create complex queries.`),
 		),
 		mcp.WithString("orderBy",
 			mcp.Description("Order by field"),
