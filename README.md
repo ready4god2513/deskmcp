@@ -9,6 +9,9 @@ An MCP (Model Context Protocol) server for the Teamwork Desk API. This server al
   - Customers
   - Companies
   - Users
+  - Tags
+  - Ticket Types
+  - Ticket Statuses
 - Advanced filtering capabilities for all list operations
 - JSON response formatting for easy parsing
 - Docker support for easy deployment
@@ -124,6 +127,21 @@ DeskMCP is a bridge between your Teamwork Desk account and AI assistants like Cl
 - `get_user`: Get a specific user by ID
 - `create_user`: Create a new user
 
+### Tags
+- `list_tags`: List all tags with optional filters
+- `get_tag`: Get a specific tag by ID
+- `create_tag`: Create a new tag
+
+### Ticket Types
+- `list_ticket_types`: List all ticket types with optional filters
+- `get_ticket_type`: Get a specific ticket type by ID
+- `create_ticket_type`: Create a new ticket type
+
+### Ticket Statuses
+- `list_ticket_statuses`: List all ticket statuses with optional filters
+- `get_ticket_status`: Get a specific ticket status by ID
+- `create_ticket_status`: Create a new ticket status
+
 ## Filter Usage
 
 All list operations support filtering through the `filter` parameter. Here are some examples:
@@ -174,6 +192,21 @@ All list operations support filtering through the `filter` parameter. Here are s
 #### Users
 - `email`: User email
 - `role`: User role
+- `created_at`: Date range
+- `updated_at`: Date range
+
+#### Tags
+- `name`: Tag name
+- `created_at`: Date range
+- `updated_at`: Date range
+
+#### Ticket Types
+- `name`: Ticket type name
+- `created_at`: Date range
+- `updated_at`: Date range
+
+#### Ticket Statuses
+- `name`: Ticket status name
 - `created_at`: Date range
 - `updated_at`: Date range
 
