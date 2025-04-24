@@ -28,22 +28,20 @@ func DefaultPaginationParams() PaginationParams {
 // AddPaginationToParams adds pagination and sorting parameters to the URL values
 func AddPaginationToParams(params url.Values, request mcp.CallToolRequest) {
 	// Get pagination parameters from request
-	orderBy := request.Params.Arguments["orderBy"].(string)
-	orderMode := request.Params.Arguments["orderMode"].(string)
-	page := request.Params.Arguments["page"].(float64)
-	pageSize := request.Params.Arguments["pageSize"].(float64)
-
-	// Set default values if not provided
-	if orderBy == "" {
+	orderBy, ok := request.Params.Arguments["orderBy"].(string)
+	if !ok {
 		orderBy = "createdAt"
 	}
-	if orderMode == "" {
+	orderMode, ok := request.Params.Arguments["orderMode"].(string)
+	if !ok {
 		orderMode = "desc"
 	}
-	if page == 0 {
+	page, ok := request.Params.Arguments["page"].(float64)
+	if !ok {
 		page = 1
 	}
-	if pageSize == 0 {
+	pageSize, ok := request.Params.Arguments["pageSize"].(float64)
+	if !ok {
 		pageSize = 10
 	}
 
